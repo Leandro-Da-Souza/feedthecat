@@ -13,19 +13,21 @@
               </select>
           </form>
           <div class="wrapper">
-              
+
           </div>
       </div>
   </div>
 </template>
 
 <script>
-import { mapState,mapMutations } from "vuex"
+import { mapState,mapMutations, mapActions } from "vuex"
+
 export default {
     name: "Home",
     data() {
         return {
-            count: 1
+            count: 1,
+            list: []
         }
     },
     updated() {
@@ -34,13 +36,20 @@ export default {
         console.log(this.storeCount)
     },
     computed: {
-        ...mapState(['storeCount'])
+        ...mapState(['storeCount', 'checklist'])
     },
     methods: {
-        ...mapMutations(['SET_COUNT'])
+        ...mapMutations(['SET_COUNT']),
+        ...mapActions(['getChecklist']),
+        createCheck() {
+            
+        }
     },
-    created() {
+    async created() {
         console.log(this.storeCount)
+        await this.getChecklist()
+        this.list = this.checklist
+        console.log(this.list)
     }
 
 }
