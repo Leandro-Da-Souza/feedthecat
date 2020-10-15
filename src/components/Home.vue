@@ -5,7 +5,7 @@
       <div class="select">
           <h3>How Many Times Do You Feed The Cat?</h3>
           <form>
-              <select name="feed" id="feed" v-model="count">
+              <select name="feed" id="feed" v-model="count" @change="createCheck()">
                   <option value="1" selected>One Time Per Day</option>
                   <option value="2">Two Times Per Day</option>
                   <option value="3">Three Times Per Day</option>
@@ -13,43 +13,57 @@
               </select>
           </form>
           <div class="wrapper">
-
+              <ul>
+                  <li v-for="item in list" :key="item._id">
+                      <input type="checkbox" v-model="item.checked" @change="toggle(item._id)">
+                      <span>{{!item.checked ? 'Cat Wants Food!' : 'Cat Is Stuffed.'}}</span>
+                  </li>
+              </ul>
           </div>
       </div>
   </div>
 </template>
 
 <script>
-import { mapState,mapMutations, mapActions } from "vuex"
+import { mapState, mapActions } from "vuex"
 
 export default {
     name: "Home",
     data() {
         return {
-            count: 1,
-            list: []
+            count: '',
+            list: [],
+            number: 1
         }
     },
-    updated() {
-        console.log(this.count)
-        this.SET_COUNT(this.count)
-        console.log(this.storeCount)
+    async updated() {
+        await this.createList()
     },
     computed: {
         ...mapState(['storeCount', 'checklist'])
     },
     methods: {
-        ...mapMutations(['SET_COUNT']),
-        ...mapActions(['getChecklist']),
-        createCheck() {
-            
+        ...mapActions(['getChecklist', 'setCount']),
+        async createCheck() {
+            this.setCount(this.count)
+            await this.createList()
+        },
+        async createList() {
+            await this.getChecklist()
+            this.list = await this.checklist
+        },
+        async toggle(id) {
+            try{
+                await fetch(`http://localhost:5000/api/check/${id}`, {
+                    method: 'PUT'
+                })
+            } catch(err) {
+                console.log(err)
+            }
         }
     },
     async created() {
-        console.log(this.storeCount)
-        await this.getChecklist()
-        this.list = this.checklist
-        console.log(this.list)
+        await this.createList()
     }
 
 }
@@ -80,5 +94,21 @@ select {
     margin-top: 5px;
     padding: 5px 3px;
 }
+.disabled {
+    color: white;
+}
 
+ul {
+    list-style-type: none;
+}
+
+li {
+    margin: 15px 0px
+}
+
+ul li span {
+    margin-left: 10px;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
 </style>

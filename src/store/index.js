@@ -18,9 +18,23 @@ export default new Vuex.Store({
   },
   actions: { 
     getChecklist: async ({commit}) => {
-      let res = await fetch('http://localhost:5000/api/check');
-      let data = await res.json()
-      commit('SET_CHECKLIST', data)
+      try {
+        let res = await fetch('http://localhost:5000/api/check');
+        let data = await res.json()
+        commit('SET_CHECKLIST', data)
+      } catch(err) {
+        console.log(err)
+      }
+    },
+    setCount: async ({commit}, val) => {
+      try {
+        await fetch(`http://localhost:5000/api/check/${val}`, {
+          method: 'POST'
+        })
+        commit('SET_COUNT', val)
+      } catch (err) {
+        console.log(err)
+      }
     }
   },
   modules: {
